@@ -1,6 +1,7 @@
 import moment from "moment";
 import { massege, statusCodes } from "../helper/constents/message.js";
 import { postModel } from "../model/post.js";
+import mongoose from "mongoose";
 
 export const isPostAlreadyExist = async (postId) => {
   const where = {
@@ -16,11 +17,13 @@ export const isPostAlreadyExist = async (postId) => {
 export const createPost = async (req, res) => {
   try {
     const postData = {
-      user_id: req.body.userId,
+      user_id: req.body.user_id,
       title: req.body.title,
       story: req.body.story,
       tags: req.body.tags,
     };
+
+    console.log(postData);
 
     let dataToSave = new postModel(postData);
     const response = await dataToSave.save();
@@ -41,14 +44,10 @@ export const createPost = async (req, res) => {
 export const allPost = async () => {
   try {
     const count = await postModel.countDocuments();
-    const response = await postModel.find();
-
-    const mydata = postModel.aggregate([{
-      
-    }])
-
-    const data = response.map((item) => {
+    const response = await postModel.find().sort({ _id: -1 });
+    const myData = response.map((item) => {
       return {
+        _id: item._id,
         title: item.title,
         story: item.story,
         story20: item.story.slice(0, 200),
@@ -59,7 +58,7 @@ export const allPost = async () => {
     return {
       status: statusCodes.OK,
       massege: massege.FETCHED_SUCCESSFULLY,
-      data: data,
+      data: myData,
       count: count,
     };
   } catch (error) {
@@ -71,7 +70,7 @@ export const allPost = async () => {
   }
 };
 
-export const getById = async (req, res) => {
+export const getByUserId = async (req, res) => {
   try {
     const userId = req.params.userId;
     const where = {
@@ -89,7 +88,46 @@ export const getById = async (req, res) => {
     console.log(error);
     return {
       status: statusCodes.INTERNAL_SERVER_ERROR,
-      massee: massege.INTERNAL_SERVER_ERROR,
+      massege: massege.INTERNAL_SERVER_ERROR,
+    };
+  }
+};
+
+export const getById = async (req, res) => {
+  try {
+    let postId = req.params.postId;
+    postId = new mongoose.Types.ObjectId(postId);
+    const response = await postModel.aggregate([
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "post_id",
+          as: "comments",
+        },
+      },
+      {
+        $match: {
+          _id: postId,
+        },
+      },
+      {
+        $sort: {
+          _id: -1,
+        },
+      },
+    ]);
+
+    return {
+      status: statusCodes.OK,
+      massege: massege.FETCHED_SUCCESSFULLY,
+      data: response,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      status: statusCodes.INTERNAL_SERVER_ERROR,
+      massege: massege.INTERNAL_SERVER_ERROR,
     };
   }
 };

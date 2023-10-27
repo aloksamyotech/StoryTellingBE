@@ -21,8 +21,8 @@ export const createUser = async (req, res) => {
   try {
     const userData = {
       name: req.body.name,
-      age: req.body.age,
-      gender: req.body.gender,
+      age: req.body?.age,
+      gender: req.body?.gender,
       email: req.body.email,
       password: req.body.password,
     };
@@ -64,7 +64,7 @@ export const auth = async (req, res) => {
     if (!isExist) {
       return {
         message: massege.WRONG_EMAIL,
-        status: statusCodes.BAD_REQUEST,
+        status: statusCodes.OK,
       };
     }
 
@@ -91,7 +91,7 @@ export const auth = async (req, res) => {
     } else {
       return {
         message: massege.WRONG_PASSWORD,
-        status: statusCodes.BAD_REQUEST,
+        status: statusCodes.OK,
       };
     }
   } catch (error) {

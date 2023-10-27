@@ -5,6 +5,7 @@ import {
   allPost,
   createPost,
   getById,
+  getByUserId,
 } from "../repository/post.js";
 
 export const addPost = async (req, res) => {
@@ -17,7 +18,12 @@ export const getAllPost = async (req, res) => {
   res.status(data.status).json(data);
 };
 
-export const getByUserId = async (req, res) => {
+export const getPostByUser = async (req, res) => {
+  const data = await getByUserId(req);
+  res.status(data.status).json(data);
+};
+
+export const getPostById = async (req, res) => {
   const data = await getById(req);
   res.status(data.status).json(data);
 };

@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 const schema = mongoose.Schema({
   name: { type: String, required: true },
-  age: { type: Number, required: true },
-  gender: { type: String, required: true },
+  age: { type: Number, required: false },
+  gender: { type: String, required: false },
   email: { type: String, required: true },
   password: { type: String, required: true },
   created_at: { type: Date, default: new Date() },
